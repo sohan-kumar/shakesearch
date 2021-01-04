@@ -8,8 +8,9 @@ Future Changes:
 	- Add hyperlink so that clicking on annotation takes user to spot in play for further examination
 2. Keep struct that counts number of times each line is clicked to keep track of popularity, and return all search results sorted by popularity
 3. Allow users to sort results by play, popularity, most recent
-3. Account for misspellings and old english to new english word changes
-4. Add features to allow user to search specific plays, not just all works
+4. Account for misspellings and old english to new english word changes
+5. Add better support for phrase search
+6. Add features to allow user to search specific plays, not just all works
 	- To decrease search time, use multithreaded search so that each thread searches 1 play for query
-5. Allow user to bookmark certain passages for easier future access
+7. Allow user to bookmark certain passages for easier future access
 	- Cache selected passaged for quicker cpu access
