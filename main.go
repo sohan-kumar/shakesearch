@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+    "strings"
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 	}
 
 	fmt.Printf("Listening on port %s...", port)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+    err = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,16 +68,49 @@ func (s *Searcher) Load(filename string) error {
 	if err != nil {
 		return fmt.Errorf("Load: %w", err)
 	}
-	s.CompleteWorks = string(dat)
-	s.SuffixArray = suffixarray.New(dat)
+    s.CompleteWorks = string(dat)
+    s.SuffixArray = suffixarray.New([]byte(strings.ToLower(string(dat))))
 	return nil
 }
 
 func (s *Searcher) Search(query string) []string {
-	idxs := s.SuffixArray.Lookup([]byte(query), -1)
+	idxs := s.SuffixArray.Lookup([]byte(strings.ToLower(query)), -1)
+
 	results := []string{}
 	for _, idx := range idxs {
-		results = append(results, s.CompleteWorks[idx-250:idx+250])
+        results = append(results, s.getPhrase(idx, query))
 	}
 	return results
 }
+
+func (s *Searcher) getPhrase(idx int, query string) string {
+    begIdx := idx
+    endIdx := idx;
+
+    testChar := string(s.CompleteWorks[idx])
+    for testChar != "\n" {
+        begIdx -= 1
+        testChar = string(s.CompleteWorks[begIdx])
+    }
+
+    testChar = string(s.CompleteWorks[idx])
+    for testChar != "." {
+        endIdx += 1
+        testChar = string(s.CompleteWorks[endIdx])
+    }
+
+    return s.formatPhrase(s.CompleteWorks[begIdx:endIdx+1], query)
+}
+
+func (s *Searcher) formatPhrase(p string, query string) string {
+    words := strings.Split(p, " ")
+    for index, word := range words {
+        if (strings.ToLower(word) == strings.ToLower(query)) {
+            words[index] = strings.ToUpper(word)
+        }
+    }
+
+    return strings.Join(words, " ")
+}
+
+
